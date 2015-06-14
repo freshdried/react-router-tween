@@ -1,0 +1,31 @@
+{
+  "name": "react-router-tween",
+  "version": "0.1.0",
+  "description": "state tweening page transitions for react-router",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/freshdried/react-router-tween.git"
+  },
+  "keywords": [
+    "react",
+    "react-router",
+    "router",
+    "tween",
+    "animation",
+    "page",
+    "transition"
+  ],
+  "author": "Sean Lee <freshdried@gmail.com> (http://sean.lee.mx)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/freshdried/react-router-tween/issues"
+  },
+  "homepage": "https://github.com/freshdried/react-router-tween#readme"
+}
