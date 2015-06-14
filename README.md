@@ -21,13 +21,16 @@ npm install --save react-router-tween
 
 ## example
 
-1. Outer is mounted. Outer fades in...
-2. Inner1 is mounted. Inner1 fades in...
+- Outer is mounted.
+- Outer tweens `presence` from 0 to 1. (opacity fade-in)
+- InnerA is mounted.
+- InnerA tweens `presence` from 0 to 1. (opacity fade-in)
 
-*when route switches to Inner2*
 
-1. Inner1 fades out... Inner1 is unmounted.
-2. Inner2 is mounted. Inner2 fades in...
+*when route switches to InnerB*
+
+1. InnerA fades out... InnerA is unmounted.
+2. InnerB is mounted. InnerB fades in...
 
 ```javascript
 import React from "react"
@@ -50,58 +53,59 @@ const Outer = React.createClass({
         return (<div style={style}>
             <h1>Hello World</h1>
             <div>
-                <Link to={"/"}>Home (Inner1)</Link>
+                <Link to={"/"}>Home (InnerA)</Link>
             </div>
             <div>
-                <Link to={"/2"}>Inner2</Link>
+                <Link to={"/B"}>InnerB</Link>
             </div>
             {routehandler}
         </div>)
     }
 });
 
-const Inner1 = React.createClass({
+const InnerA = React.createClass({
     mixins: [RRT],
     render() {
         let presence = this.getTweeningValue("presence");
         let style = { opacity: presence};
 
         return (<p style={style}>
-            This is Inner1
+            This is InnerA
         </p>)
     }
 });
 
-const Inner2 = React.createClass({
+const InnerB = React.createClass({
     mixins: [RRT],
     render() {
         let presence = this.getTweeningValue("presence");
         let style = { opacity: presence};
 
         return (<p style={style}>
-            This is Inner2
+            This is InnerB
         </p>)
     }
 });
 
 const routes = (
     <Route path="/" handler={Outer}>
-        <DefaultRoute handler={Inner1}/>
-        <Route path="/2" handler={Inner2}/>
+        <DefaultRoute handler={InnerA}/>
+        <Route path="/B" handler={InnerB}/>
     </Route>
 );
 
-Router.run(routes, Router.HashLocation, (Handler) => React.render(<Handler/>, document.body));
+Router.run(routes, Router.HashLocation,
+    (Handler) => React.render(<Handler/>, document.body));
 ```
-## usage
-#### Override the default entrance behavior by providing `this.onEnter()`
-`this.onEnter() -> Promise`
+## custom tweening behavior
+#### Override entrance behavior by providing `this.enterTween()`
+`this.enterTween() -> Promise`
 
 
 ```javascript
-    // default onEnter
+    // default enterTween
     ...
-    onEnter() {
+    enterTween() {
         return this.setStateTween({presence: 1}, {
             duration: 300,
             easing: tweenState.easingTypes.easeInOutQuad
@@ -110,15 +114,15 @@ Router.run(routes, Router.HashLocation, (Handler) => React.render(<Handler/>, do
     ...
 ```
 
-#### Override the default exit behavior by providing `this.onExit()`
-`this.onExit() -> Promise`
+#### Override exit behavior by providing `this.exitTween()`
+`this.exitTween() -> Promise`
 
 
 
 ```javascript
-    // default onExit
+    // default exitTween
     ...
-    onExit() {
+    exitTween() {
         return this.setStateTween({presence: 0}, {
             duration: 300,
             easing: tweenState.easingTypes.easeInOutQuad
@@ -127,21 +131,21 @@ Router.run(routes, Router.HashLocation, (Handler) => React.render(<Handler/>, do
     ...
 ```
 
-#### example onExit and onEnter
-- Inner3 is mounted.
-- Inner3 tweens `presence`to 1 (linear, 500ms)
-- Inner3 tweens `presence` to 0 (easeInOutQuad, 1000ms)
-- Inner3 tweens `presence` to 1 (easeInOutQuad, 1000ms)
+#### example custom tweens
+- InnerC is mounted.
+- InnerC tweens `presence`to 1 (linear, 500ms)
+- InnerC tweens `presence` to 0 (easeInOutQuad, 1000ms)
+- InnerC tweens `presence` to 1 (easeInOutQuad, 1000ms)
 
-*when route changes*
-- Inner3 tweens `presence` to 0 (easeInOutQuad, 1000ms)
+*when route changes out*
+- InnerC tweens `presence` to 0 (easeInOutQuad, 1000ms)
 
 ```javascript
 import tweenState from "react-tween-state"
 ...
 
-const Inner3 = React.createClass({
-    mixins: [RRTT],
+const InnerC = React.createClass({
+    mixins: [RRT],
 
     enterTween() {
         return this.setStateTween({presence: 1}, {
@@ -160,7 +164,7 @@ const Inner3 = React.createClass({
         let style = { opacity: presence };
 
         return (<p style={style}>
-            This is Inner3.
+            This is InnerC.
         </p>);
     }
 });
