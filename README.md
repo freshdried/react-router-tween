@@ -7,10 +7,12 @@ Provides tweening state transitions for [react-router](https://github.com/rackt/
 
 RRT binds `this.state.presence` in a component, which tweens from 0 to 1 when the component is mounted. When our route changes, the `presence` variable tweens back to 0 and the component is unmounted.
 
-
-RRT uses [react-set-state-tween](https://github.com/freshdried/react-set-state-tween), a promises wrapper around [react-tween-state](https://github.com/chenglou/react-tween-state)
 <br>
 
+RRT uses [react-set-state-tween](https://github.com/freshdried/react-set-state-tween), a promises wrapper around [react-tween-state](https://github.com/chenglou/react-tween-state)
+
+<br>
+<br>
 
 ## install
 
@@ -20,6 +22,7 @@ npm install --save react-router-tween
 
 
 ## example
+*on page load:*
 
 - Outer is mounted.
 - Outer tweens `presence` from 0 to 1. (opacity fade-in)
@@ -27,10 +30,12 @@ npm install --save react-router-tween
 - InnerA tweens `presence` from 0 to 1. (opacity fade-in)
 
 
-*when route switches to InnerB*
+*when route switches to InnerB:*
 
-1. InnerA fades out... InnerA is unmounted.
-2. InnerB is mounted. InnerB fades in...
+- InnerA tweens `presence` from 1 to 0. (opacity fade-out)
+- InnerA is unmounted.
+- InnerB is mounted.
+- InnerB tweens `presence` from 0 to 1. (opacity fade-in)
 
 ```javascript
 import React from "react"
@@ -46,6 +51,10 @@ const Outer = React.createClass({
         let presence = this.getTweeningValue("presence");
         let style = { opacity: presence };
 
+        //Here we specify to mount subroutes only when the fade-in completes.
+        //We could very much mount RouteHandler directly, so that
+        //Outer and Inner would fade-in in parallel
+    
         let routehandler = (presence === 1)
             ? <RouteHandler/>
             : null;
@@ -67,11 +76,9 @@ const InnerA = React.createClass({
     mixins: [RRT],
     render() {
         let presence = this.getTweeningValue("presence");
-        let style = { opacity: presence};
+        let style = { opacity: presence}; //fade-in and fade-out
 
-        return (<p style={style}>
-            This is InnerA
-        </p>)
+        return (<p style={style}> A </p>)
     }
 });
 
@@ -79,11 +86,9 @@ const InnerB = React.createClass({
     mixins: [RRT],
     render() {
         let presence = this.getTweeningValue("presence");
-        let style = { opacity: presence};
+        let style = { opacity: presence}; //fade-in and fade-out
 
-        return (<p style={style}>
-            This is InnerB
-        </p>)
+        return (<p style={style}> B </p>)
     }
 });
 
@@ -132,6 +137,7 @@ Router.run(routes, Router.HashLocation,
 ```
 
 #### example custom tweens
+*when route changes to InnerC*
 - InnerC is mounted.
 - InnerC tweens `presence`to 1 (linear, 500ms)
 - InnerC tweens `presence` to 0 (easeInOutQuad, 1000ms)
@@ -163,9 +169,7 @@ const InnerC = React.createClass({
         let presence = this.getTweeningValue("presence");
         let style = { opacity: presence };
 
-        return (<p style={style}>
-            This is InnerC.
-        </p>);
+        return (<p style={style}> C </p>);
     }
 });
 
