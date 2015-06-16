@@ -1,5 +1,7 @@
 let Promise = require("bluebird");
 let SetStateTween = require("react-set-state-tween");
+// let {TransitionHook} = require("react-router");
+
 
 //PeerDeps: react-router, react
 
@@ -14,26 +16,27 @@ function cancelIfNotMounted(ctx) {
 
 let RRT = {
     mixins: [SetStateTween],
-    statics: {
-        willTransitionFrom: function(transition, component, callback) {
-            if (!component) return callback();
-            return component._exitTween()
-                .then( () => callback() )
 
-                // If it's still mounted, we probably switched out and switched back too fast
-                // so we need to renanimate the mounting.
+    routerWillLeave: function(callback) {
+        return this._exitTween()
+            .then( () => callback() )
 
-                .then( cancelIfNotMounted(component) )
-                .then( component._enterTween)
-                .catch(Promise.CancellationError, (e) => null)
-        }
+            // If it's still mounted, we probably switched out and switched back too fast
+            // so we need to renanimate the mounting.
+
+            .then( cancelIfNotMounted(this) )
+            .then( this._enterTween)
+            .catch(Promise.CancellationError, (e) => null)
     },
-    getInitialState() {
+    getInitialState () {
         return {presence: 0}
     },
-    componentDidMount() {
+    componentDidMount () {
         return this._enterTween();
     },
+    // onEnter (nextState, transition) {
+    //     console.log(nextState, transition)
+    // },
 
 
 
@@ -55,39 +58,29 @@ let RRT = {
 
 
 
-    _enterTweenDefault() {
-        return this.setStateTween({presence: 1}, {duration: 300} )
-    },
-
-    _exitTweenDefault() {
-        return this.setStateTween({presence: 0}, {duration: 300});
-    },
-
-
-
-
-
-
-
-
     //returns Promise
-    _enterTween() {
+    _enterTween () {
+        const enterTweenDefault = 
+            () => this.setStateTween({presence: 1}, {duration: 300});
+
         const enterTween = (typeof this.enterTween === "function" )
             ? this.enterTween
-            : this._enterTweenDefault;
+            : enterTweenDefault;
 
-        return Promise
-            .try(  cancelIfNotMounted(this) )
+        return Promise.try(cancelIfNotMounted(this))
             .then( enterTween )
             .catch(Promise.CancellationError, (e) => null)
 
     },
 
     //returns Promise
-    _exitTween() {
+    _exitTween () {
+        const exitTweenDefault = 
+            () => this.setStateTween({presence: 0}, {duration: 300});
+
         const exitTween = (typeof this.exitTween === "function" )
             ? this.exitTween
-            : this._exitTweenDefault
+            : exitTweenDefault
 
         return Promise.try(exitTween);
 
